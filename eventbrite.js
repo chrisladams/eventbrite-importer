@@ -3,7 +3,7 @@ const qs = require('qs')
 const yargs = require('yargs')
 
 const argv = yargs
-  .usage("node eventbrite.js --token=XXX --org=123 --page=1")
+  .usage("node eventbrite.js --token=XXX --org=123 --url=\"http://mysite/api/event/create\" --page=1")
   .option('token', {
     alias: 't',
     description: 'Eventbrite API Token',
