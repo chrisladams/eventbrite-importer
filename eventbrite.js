@@ -41,27 +41,35 @@ const importEvent = async function (api_url) {
   try {
     const res = await axios.post(
       importUrl,
-      { api_url },
+      {
+        api_url,
+        offloaded: 1,
+        config: {
+          action: 'manual',
+          endpoint_url: importUrl
+        }
+      },
       { header: { 'Content-Type': 'application/json' } }
     )
-    console.log(`Successfully ${res.data.created ? 'created' : 'updated'}: ${res.data.id}`)
+    console.log(`Successfully ${res.data.created ? 'created' : 'updated'}: ${res.data.title} ${res.data.id}`)
     return res.data
   } catch (e) {
+    console.error(e.response.data)
     console.error(`Error: ${api_url}`)
   }
   return false
 }
 
 const getFeed = async function(token, org, page) {
-  console.log(`Starting page #${page}`)
   const rsp = await axios.get(`https://www.eventbriteapi.com/v3/organizations/${org}/events/?${qs.stringify({ token, page, status: 'completed,live,ended,started' })}`)
+  console.log(`Page: ${page} of ${rsp.data.pagination.page_count}...`)
   for (const e of rsp.data.events) {
     const res = await importEvent(e.resource_uri)
     await sleep(500)
   }
 
   setTimeout(() => {
-    console.log(`Getting page: ${page + 1} of ${rsp.data.pagination.page_count}...`)
+    // console.log(`Getting page: ${page + 1} of ${rsp.data.pagination.page_count}...`)
     if (rsp.data.pagination.page_count > page) {
       getFeed(token, org, page + 1)
     }
